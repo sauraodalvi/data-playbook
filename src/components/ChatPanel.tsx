@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,7 @@ import { MessageCircle, Send, Bot, User } from "lucide-react";
 import { HealthData } from "@/pages/Index";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getLabValue } from "@/utils/labResultsHelpers";
 
 interface ChatPanelProps {
   healthData: HealthData;
@@ -139,7 +139,8 @@ export const ChatPanel = ({ healthData, reportId, aiProvider }: ChatPanelProps) 
     }
     
     if (lowerQuestion.includes('diet') || lowerQuestion.includes('nutrition')) {
-      return `Based on your ${data.calories_kcal || 0} calorie burn and health metrics, focus on a balanced diet rich in vegetables, lean proteins, and whole grains. Your cholesterol level of ${data.lab_results?.cholesterol || 0} mg/dL ${(data.lab_results?.cholesterol || 0) < 200 ? 'is excellent' : 'could benefit from dietary adjustments'}.`;
+      const cholesterol = getLabValue(data.lab_results, 'cholesterol');
+      return `Based on your ${data.calories_kcal || 0} calorie burn and health metrics, focus on a balanced diet rich in vegetables, lean proteins, and whole grains. Your cholesterol level of ${cholesterol || 0} mg/dL ${(cholesterol || 0) < 200 ? 'is excellent' : 'could benefit from dietary adjustments'}.`;
     }
     
     if (lowerQuestion.includes('water') || lowerQuestion.includes('hydration')) {

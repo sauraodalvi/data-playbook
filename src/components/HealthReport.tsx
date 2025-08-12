@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getLabValue } from "@/utils/labResultsHelpers";
 
 interface HealthReportProps {
   healthData: HealthData;
@@ -280,12 +280,17 @@ export const HealthReport = ({ healthData, aiConfig, onReset }: HealthReportProp
     }
   ];
 
-  const generateHealthSummary = (data: HealthData) => ({
-    overall: `Your overall health metrics show ${(data.steps || 0) > 8000 ? 'excellent' : 'moderate'} activity levels with ${(data.sleep_hours || 0) >= 7 ? 'good' : 'suboptimal'} sleep patterns. Continue focusing on consistent healthy habits.`,
-    cardiovascular: `Heart rate of ${data.heart_rate_bpm || 0} BPM and blood pressure ${data.blood_pressure?.systolic || 0}/${data.blood_pressure?.diastolic || 0} indicate ${(data.heart_rate_bpm || 0) < 80 ? 'good' : 'elevated'} cardiovascular health.`,
-    metabolic: `Blood glucose at ${data.lab_results?.glucose || 0} mg/dL and cholesterol at ${data.lab_results?.cholesterol || 0} mg/dL show ${(data.lab_results?.glucose || 0) < 100 ? 'excellent' : 'concerning'} metabolic function.`,
-    lifestyle: `With ${data.water_liters || 0}L daily water intake and ${data.sleep_hours || 0} hours of sleep, your lifestyle habits ${(data.water_liters || 0) >= 2 && (data.sleep_hours || 0) >= 7 ? 'support' : 'could better support'} optimal health.`
-  });
+  const generateHealthSummary = (data: HealthData) => {
+    const glucose = getLabValue(data.lab_results, 'glucose');
+    const cholesterol = getLabValue(data.lab_results, 'cholesterol');
+    
+    return {
+      overall: `Your overall health metrics show ${(data.steps || 0) > 8000 ? 'excellent' : 'moderate'} activity levels with ${(data.sleep_hours || 0) >= 7 ? 'good' : 'suboptimal'} sleep patterns. Continue focusing on consistent healthy habits.`,
+      cardiovascular: `Heart rate of ${data.heart_rate_bpm || 0} BPM and blood pressure ${data.blood_pressure?.systolic || 0}/${data.blood_pressure?.diastolic || 0} indicate ${(data.heart_rate_bpm || 0) < 80 ? 'good' : 'elevated'} cardiovascular health.`,
+      metabolic: `Blood glucose at ${glucose || 0} mg/dL and cholesterol at ${cholesterol || 0} mg/dL show ${(glucose || 0) < 100 ? 'excellent' : 'concerning'} metabolic function.`,
+      lifestyle: `With ${data.water_liters || 0}L daily water intake and ${data.sleep_hours || 0} hours of sleep, your lifestyle habits ${(data.water_liters || 0) >= 2 && (data.sleep_hours || 0) >= 7 ? 'support' : 'could better support'} optimal health.`
+    };
+  };
 
   const getAIModelName = (provider: string) => {
     const models = {

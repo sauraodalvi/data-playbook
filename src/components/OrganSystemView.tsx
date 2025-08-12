@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,6 +9,7 @@ import {
   Droplets
 } from "lucide-react";
 import { HealthData } from "@/pages/Index";
+import { getLabValue } from "@/utils/labResultsHelpers";
 
 interface OrganSystemViewProps {
   healthData: HealthData;
@@ -76,8 +76,8 @@ export const OrganSystemView = ({ healthData }: OrganSystemViewProps) => {
         },
         {
           name: "Total Cholesterol",
-          value: `${healthData.lab_results?.cholesterol || 0} mg/dL`,
-          status: healthData.lab_results?.cholesterol ? getCholesterolStatus(healthData.lab_results.cholesterol) : 'warning',
+          value: `${getLabValue(healthData.lab_results, 'cholesterol') || 0} mg/dL`,
+          status: getLabValue(healthData.lab_results, 'cholesterol') ? getCholesterolStatus(getLabValue(healthData.lab_results, 'cholesterol')!) : 'warning',
           comment: "Within healthy limits"
         }
       ]
@@ -89,8 +89,8 @@ export const OrganSystemView = ({ healthData }: OrganSystemViewProps) => {
       parameters: [
         {
           name: "Blood Glucose",
-          value: `${healthData.lab_results?.glucose || 0} mg/dL`,
-          status: healthData.lab_results?.glucose ? getGlucoseStatus(healthData.lab_results.glucose) : 'warning',
+          value: `${getLabValue(healthData.lab_results, 'glucose') || 0} mg/dL`,
+          status: getLabValue(healthData.lab_results, 'glucose') ? getGlucoseStatus(getLabValue(healthData.lab_results, 'glucose')!) : 'warning',
           comment: "Fasting glucose levels normal"
         },
         {
@@ -114,8 +114,8 @@ export const OrganSystemView = ({ healthData }: OrganSystemViewProps) => {
       parameters: [
         {
           name: "Hemoglobin",
-          value: `${healthData.lab_results?.hemoglobin || 0} g/dL`,
-          status: (healthData.lab_results?.hemoglobin || 0) >= 12 ? 'excellent' : 'warning',
+          value: `${getLabValue(healthData.lab_results, 'hemoglobin') || 0} g/dL`,
+          status: (getLabValue(healthData.lab_results, 'hemoglobin') || 0) >= 12 ? 'excellent' : 'warning',
           comment: "Normal oxygen-carrying capacity"
         },
         {
@@ -139,8 +139,8 @@ export const OrganSystemView = ({ healthData }: OrganSystemViewProps) => {
         },
         {
           name: "Vitamin D",
-          value: `${healthData.lab_results?.vitamin_d || 0} ng/mL`,
-          status: (healthData.lab_results?.vitamin_d || 0) >= 30 ? 'excellent' : 'warning',
+          value: `${getLabValue(healthData.lab_results, 'vitamin_d') || 0} ng/mL`,
+          status: (getLabValue(healthData.lab_results, 'vitamin_d') || 0) >= 30 ? 'excellent' : 'warning',
           comment: "Supports bone health"
         }
       ]

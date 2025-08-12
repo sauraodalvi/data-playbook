@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,6 +18,7 @@ import {
 import { HealthData } from "@/pages/Index";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getLabValue, isObjectLabResults } from "@/utils/labResultsHelpers";
 
 interface HealthDataInputProps {
   onDataSubmitted: (data: HealthData) => void;
@@ -57,7 +57,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
   const handleNestedInputChange = (parent: keyof HealthData, field: string, value: any) => {
     setHealthData(prev => {
       const currentParent = prev[parent];
-      if (typeof currentParent === 'object' && currentParent !== null) {
+      if (typeof currentParent === 'object' && currentParent !== null && !Array.isArray(currentParent)) {
         return {
           ...prev,
           [parent]: {
@@ -287,7 +287,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
                 <Input
                   type="number"
                   step="0.1"
-                  value={healthData.lab_results?.hemoglobin || ''}
+                  value={isObjectLabResults(healthData.lab_results) ? healthData.lab_results.hemoglobin || '' : ''}
                   onChange={(e) => handleNestedInputChange('lab_results', 'hemoglobin', parseFloat(e.target.value) || 0)}
                   placeholder="e.g., 14.5"
                 />
@@ -297,7 +297,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
                 <Label>Total Cholesterol (mg/dL)</Label>
                 <Input
                   type="number"
-                  value={healthData.lab_results?.cholesterol || ''}
+                  value={isObjectLabResults(healthData.lab_results) ? healthData.lab_results.cholesterol || '' : ''}
                   onChange={(e) => handleNestedInputChange('lab_results', 'cholesterol', parseInt(e.target.value) || 0)}
                   placeholder="e.g., 180"
                 />
@@ -307,7 +307,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
                 <Label>Glucose (mg/dL)</Label>
                 <Input
                   type="number"
-                  value={healthData.lab_results?.glucose || ''}
+                  value={isObjectLabResults(healthData.lab_results) ? healthData.lab_results.glucose || '' : ''}
                   onChange={(e) => handleNestedInputChange('lab_results', 'glucose', parseInt(e.target.value) || 0)}
                   placeholder="e.g., 95"
                 />
@@ -318,7 +318,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
                 <Input
                   type="number"
                   step="0.1"
-                  value={healthData.lab_results?.vitamin_d || ''}
+                  value={isObjectLabResults(healthData.lab_results) ? healthData.lab_results.vitamin_d || '' : ''}
                   onChange={(e) => handleNestedInputChange('lab_results', 'vitamin_d', parseFloat(e.target.value) || 0)}
                   placeholder="e.g., 32"
                 />
