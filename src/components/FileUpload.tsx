@@ -81,8 +81,8 @@ export const FileUpload = ({ onDataUploaded }: FileUploadProps) => {
       }
 
       // Add preferences
-      data.diet_preference = preferences.diet_preference;
-      data.goal = preferences.goal;
+      if (preferences.diet_preference) data.diet_preference = preferences.diet_preference;
+      if (preferences.goal) data.goal = preferences.goal;
 
       toast.success("Data uploaded successfully!");
       onDataUploaded(data);
@@ -122,8 +122,8 @@ export const FileUpload = ({ onDataUploaded }: FileUploadProps) => {
       });
 
       // Add preferences
-      data.diet_preference = preferences.diet_preference;
-      data.goal = preferences.goal;
+      if (preferences.diet_preference) data.diet_preference = preferences.diet_preference;
+      if (preferences.goal) data.goal = preferences.goal;
 
       if (Object.keys(data).length === 0) {
         toast.error("No health data detected. Please check your input format.");

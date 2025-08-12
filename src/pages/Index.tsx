@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
@@ -7,6 +6,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { HealthDataInput } from "@/components/HealthDataInput";
 import { HealthReport } from "@/components/HealthReport";
 import { AIProviderSetup } from "@/components/AIProviderSetup";
+import { FileUpload } from "@/components/FileUpload";
 import { toast } from "sonner";
 
 export interface HealthData {
@@ -26,7 +26,14 @@ export interface HealthData {
     cholesterol?: number;
     glucose?: number;
     vitamin_d?: number;
-  };
+  } | Array<{
+    parameter: string;
+    value: number;
+    unit: string;
+    status: string;
+  }>;
+  diet_preference?: string;
+  goal?: string;
 }
 
 export interface AIConfig {
@@ -119,7 +126,7 @@ const Index = () => {
 
       {currentStep === 'data_input' && aiConfig && (
         <div className="container mx-auto px-4 py-8">
-          <HealthDataInput onDataSubmitted={handleDataSubmitted} />
+          <FileUpload onDataUploaded={handleDataSubmitted} />
         </div>
       )}
 
