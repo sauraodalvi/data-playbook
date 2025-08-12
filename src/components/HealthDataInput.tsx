@@ -14,9 +14,7 @@ import {
   Droplets, 
   Scale,
   Zap,
-  FileText,
-  Upload,
-  Plus
+  FileText
 } from "lucide-react";
 import { HealthData } from "@/pages/Index";
 import { toast } from "sonner";
@@ -49,21 +47,27 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: keyof HealthData, value: any) => {
     setHealthData(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handleNestedInputChange = (parent: string, field: string, value: any) => {
-    setHealthData(prev => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent as keyof HealthData],
-        [field]: value
+  const handleNestedInputChange = (parent: keyof HealthData, field: string, value: any) => {
+    setHealthData(prev => {
+      const currentParent = prev[parent];
+      if (typeof currentParent === 'object' && currentParent !== null) {
+        return {
+          ...prev,
+          [parent]: {
+            ...currentParent,
+            [field]: value
+          }
+        };
       }
-    }));
+      return prev;
+    });
   };
 
   const handleSubmit = async () => {
@@ -80,7 +84,7 @@ export const HealthDataInput = ({ onDataSubmitted }: HealthDataInputProps) => {
             user_id: user.id,
             data_type: 'comprehensive',
             source: 'manual',
-            data: healthData,
+            data: healthData as any, // Type assertion for JSON storage
             recorded_at: new Date().toISOString()
           });
 

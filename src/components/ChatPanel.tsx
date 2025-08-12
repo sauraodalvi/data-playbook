@@ -56,7 +56,9 @@ export const ChatPanel = ({ healthData, reportId, aiProvider }: ChatPanelProps) 
       }
 
       if (data?.messages) {
-        setMessages(data.messages as Message[]);
+        // Type assertion for the JSON data from Supabase
+        const loadedMessages = data.messages as unknown as Message[];
+        setMessages(loadedMessages);
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
@@ -74,7 +76,7 @@ export const ChatPanel = ({ healthData, reportId, aiProvider }: ChatPanelProps) 
         .upsert({
           user_id: user.id,
           report_id: reportId,
-          messages: newMessages,
+          messages: newMessages as any, // Type assertion for JSON storage
           updated_at: new Date().toISOString()
         });
 

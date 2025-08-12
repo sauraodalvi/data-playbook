@@ -4,11 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Heart, 
   Brain, 
-  Lungs, 
-  Bone, 
-  Kidney, 
-  Eye,
   Activity,
+  Bone, 
+  Eye,
   Droplets
 } from "lucide-react";
 import { HealthData } from "@/pages/Index";

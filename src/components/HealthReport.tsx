@@ -155,7 +155,7 @@ export const HealthReport = ({ healthData, aiConfig, onReset }: HealthReportProp
             title: `Health Report - ${new Date().toLocaleDateString()}`,
             ai_provider: aiConfig.provider,
             ai_model: getAIModelName(aiConfig.provider),
-            report_data: { healthData, processedData: mockData }
+            report_data: { healthData, processedData: mockData } as any // Type assertion for JSON storage
           })
           .select()
           .single();
