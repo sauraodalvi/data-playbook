@@ -66,8 +66,8 @@ const Index = () => {
           
           {/* Progress indicators */}
           <div className="flex items-center justify-center gap-4 mt-8">
-            <div className={`flex items-center gap-2 ${currentStep === 'upload' ? 'text-primary' : currentStep !== 'upload' ? 'text-health-good' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'upload' ? 'bg-primary text-white' : currentStep !== 'upload' ? 'bg-health-good text-white' : 'bg-muted text-muted-foreground'}`}>
+            <div className={`flex items-center gap-2 ${currentStep === 'upload' ? 'text-primary' : (currentStep === 'ai-setup' || currentStep === 'report') ? 'text-health-good' : 'text-muted-foreground'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'upload' ? 'bg-primary text-white' : (currentStep === 'ai-setup' || currentStep === 'report') ? 'bg-health-good text-white' : 'bg-muted text-muted-foreground'}`}>
                 1
               </div>
               <span className="font-medium">Upload Data</span>
