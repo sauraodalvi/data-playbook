@@ -1,9 +1,13 @@
 
-import { useState } from "react";
-import { FileUpload } from "@/components/FileUpload";
-import { AIProviderSetup } from "@/components/AIProviderSetup";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { HealthDataInput } from "@/components/HealthDataInput";
 import { HealthReport } from "@/components/HealthReport";
-import { Activity, Heart, Zap } from "lucide-react";
+import { AIProviderSetup } from "@/components/AIProviderSetup";
+import { toast } from "sonner";
 
 export interface HealthData {
   steps?: number;
@@ -11,14 +15,18 @@ export interface HealthData {
   calories_kcal?: number;
   sleep_hours?: number;
   water_liters?: number;
-  lab_results?: Array<{
-    parameter: string;
-    value: number;
-    unit: string;
-    status: string;
-  }>;
-  diet_preference?: string;
-  goal?: string;
+  heart_rate_bpm?: number;
+  blood_pressure?: {
+    systolic: number;
+    diastolic: number;
+  };
+  weight_kg?: number;
+  lab_results?: {
+    hemoglobin?: number;
+    cholesterol?: number;
+    glucose?: number;
+    vitamin_d?: number;
+  };
 }
 
 export interface AIConfig {
@@ -27,93 +35,103 @@ export interface AIConfig {
 }
 
 const Index = () => {
-  const [healthData, setHealthData] = useState<HealthData | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [currentStep, setCurrentStep] = useState<'auth' | 'ai_setup' | 'data_input' | 'report'>('auth');
+  const [healthData, setHealthData] = useState<HealthData>({});
   const [aiConfig, setAIConfig] = useState<AIConfig | null>(null);
-  const [currentStep, setCurrentStep] = useState<'upload' | 'ai-setup' | 'report'>('upload');
+  const [reportId, setReportId] = useState<string | null>(null);
 
-  const handleDataUploaded = (data: HealthData) => {
-    setHealthData(data);
-    setCurrentStep('ai-setup');
-  };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        setCurrentStep('ai_setup');
+        // Check if AI config exists in localStorage
+        const savedConfig = localStorage.getItem('healthviz_ai_config');
+        if (savedConfig) {
+          setAIConfig(JSON.parse(savedConfig));
+          setCurrentStep('data_input');
+        }
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        setCurrentStep('ai_setup');
+      } else {
+        setCurrentStep('auth');
+        setAIConfig(null);
+        setHealthData({});
+        setReportId(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleAIConfigured = (config: AIConfig) => {
     setAIConfig(config);
+    setCurrentStep('data_input');
+  };
+
+  const handleDataSubmitted = (data: HealthData) => {
+    setHealthData(data);
     setCurrentStep('report');
   };
 
-  const resetApp = () => {
-    setHealthData(null);
-    setAIConfig(null);
-    setCurrentStep('upload');
+  const handleReset = () => {
+    setHealthData({});
+    setReportId(null);
+    setCurrentStep('data_input');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-background">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-8">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 rounded-2xl gradient-health">
-              <Activity className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-4xl font-display font-bold bg-gradient-health bg-clip-text text-transparent">
-              HealthViz
-            </h1>
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">HealthViz</h1>
+            <p className="text-gray-600">Your AI-powered health report generator</p>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Transform your health data into beautiful, gamified reports with AI-powered insights
-          </p>
-          
-          {/* Progress indicators */}
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <div className={`flex items-center gap-2 ${currentStep === 'upload' ? 'text-primary' : (currentStep === 'ai-setup' || currentStep === 'report') ? 'text-health-good' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'upload' ? 'bg-primary text-white' : (currentStep === 'ai-setup' || currentStep === 'report') ? 'bg-health-good text-white' : 'bg-muted text-muted-foreground'}`}>
-                1
-              </div>
-              <span className="font-medium">Upload Data</span>
-            </div>
-            <div className="w-8 h-0.5 bg-border"></div>
-            <div className={`flex items-center gap-2 ${currentStep === 'ai-setup' ? 'text-primary' : currentStep === 'report' ? 'text-health-good' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'ai-setup' ? 'bg-primary text-white' : currentStep === 'report' ? 'bg-health-good text-white' : 'bg-muted text-muted-foreground'}`}>
-                <Zap className="w-4 h-4" />
-              </div>
-              <span className="font-medium">AI Setup</span>
-            </div>
-            <div className="w-8 h-0.5 bg-border"></div>
-            <div className={`flex items-center gap-2 ${currentStep === 'report' ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'report' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
-                <Heart className="w-4 h-4" />
-              </div>
-              <span className="font-medium">Your Report</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="container mx-auto px-4 pb-12">
-        {currentStep === 'upload' && (
-          <div className="animate-fade-up">
-            <FileUpload onDataUploaded={handleDataUploaded} />
-          </div>
-        )}
-
-        {currentStep === 'ai-setup' && healthData && (
-          <div className="animate-fade-up">
-            <AIProviderSetup onConfigured={handleAIConfigured} />
-          </div>
-        )}
-
-        {currentStep === 'report' && healthData && aiConfig && (
-          <div className="animate-fade-up">
-            <HealthReport 
-              healthData={healthData} 
-              aiConfig={aiConfig} 
-              onReset={resetApp}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{ theme: ThemeSupa }}
+              providers={[]}
+              redirectTo={window.location.origin}
             />
           </div>
-        )}
-      </main>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+      {currentStep === 'ai_setup' && (
+        <div className="container mx-auto px-4 py-8">
+          <AIProviderSetup onConfigured={handleAIConfigured} />
+        </div>
+      )}
+
+      {currentStep === 'data_input' && aiConfig && (
+        <div className="container mx-auto px-4 py-8">
+          <HealthDataInput onDataSubmitted={handleDataSubmitted} />
+        </div>
+      )}
+
+      {currentStep === 'report' && aiConfig && (
+        <div className="container mx-auto px-4 py-8">
+          <HealthReport 
+            healthData={healthData} 
+            aiConfig={aiConfig} 
+            onReset={handleReset}
+          />
+        </div>
+      )}
     </div>
   );
 };

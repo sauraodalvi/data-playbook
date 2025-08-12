@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json
+          report_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          report_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          report_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_sessions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "health_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_data: {
+        Row: {
+          created_at: string | null
+          data: Json
+          data_type: string
+          id: string
+          recorded_at: string
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          data_type: string
+          id?: string
+          recorded_at: string
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          data_type?: string
+          id?: string
+          recorded_at?: string
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_reports: {
+        Row: {
+          ai_model: string
+          ai_provider: string
+          created_at: string | null
+          generated_at: string | null
+          id: string
+          report_data: Json
+          title: string
+          user_id: string
+        }
+        Insert: {
+          ai_model: string
+          ai_provider: string
+          created_at?: string | null
+          generated_at?: string | null
+          id?: string
+          report_data: Json
+          title: string
+          user_id: string
+        }
+        Update: {
+          ai_model?: string
+          ai_provider?: string
+          created_at?: string | null
+          generated_at?: string | null
+          id?: string
+          report_data?: Json
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
